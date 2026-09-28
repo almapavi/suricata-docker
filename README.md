@@ -4,7 +4,7 @@ Source repository: `almapavi/suricata-docker`.
 
 This source builds `ghcr.io/almapavi/suricata-unraid:latest`: a Suricata image with initialization, ET Open rule updates and log rotation embedded in the image. EveBox provides a separate web interface for reviewing the sensor’s events and alerts.
 
-The examples below use a fictional container named `my-application`. Replace it with the exact name of the container you want to monitor. The existing template names, **Suricata-Proxy-IDS** and **EveBox-Proxy-IDS**, also support monitoring other containers.
+The examples below use a fictional container named `container:my-application-I-want-to-monitor`. Replace it with the exact name of the container you want to monitor. The existing template names, **Suricata-Proxy-IDS** and **EveBox-Proxy-IDS**, also support monitoring other containers.
 
 **Installation readiness:** use the registry-backed template only after the publish workflow succeeds and the container package is public. A passing build does not replace a live capture and alert test on Unraid.
 
@@ -22,14 +22,14 @@ The workflow builds an amd64 image on a GitHub-hosted runner, pushes a commit-sp
 ## Install on Unraid after publication
 
 1. Copy the two XML files in `templates/` to `/boot/config/plugins/dockerMan/templates-user/`, using a file manager or SFTP.
-2. Go to **Docker > Add Container** and select **Suricata-Proxy-IDS**. Configure **Network Type** for the traffic you want to inspect. To monitor a specific container, select that running container. For the fictional container `my-application`, replace the template’s default network selection with `container:my-application`. Other capture setups require an interface that receives the intended traffic; promiscuous mode alone does not make all network traffic visible.
+2. Go to **Docker > Add Container** and select **Suricata-Proxy-IDS**. Under **Network Type**, select `container:my-application-I-want-to-monitor`, replacing `my-application-I-want-to-monitor` with the exact name of the running container you want to monitor. This shares that container’s network namespace with the sensor.
 3. Set **Capture interface** to the interface inside the monitored container, usually `eth0`. Configure your protected networks using CIDR notation and include the HTTP service ports you want to inspect. The template’s **HTTP backend ports** field supplies Suricata’s `HTTP_PORTS` setting. **External networks** defaults to `any`, allowing rules to match traffic originating from internal addresses as well as external ones. Adjust it to suit your detection requirements.
 4. Click **Apply**. Unraid downloads the published image; first startup prepares missing configuration, downloads rules and validates the sensor configuration. No runtime script directory or image build is needed on Unraid.
 5. Add **EveBox-Proxy-IDS**. Its Suricata log host path must match the sensor’s log host path. The generic template defaults to bridge networking with TCP 5636 published on the Unraid host. You may select your own custom VLAN and a free fixed container IP instead; on a custom VLAN, use that IP on TCP 5636.
 6. Open EveBox’s Docker **Logs** for the generated admin password, then open **WebUI**. TLS and authentication remain enabled. The initial certificate is self-signed.
-7. Generate traffic to or from `my-application` and confirm corresponding events appear in EveBox. For an HTTP service, make an unencrypted HTTP request and check for an HTTP event. Confirm a harmless test request triggers a known enabled detection rule before relying on alerts. EveBox is an event and alert GUI, not a full Suricata rule editor.
+7. Generate traffic to or from the monitored container and confirm corresponding events appear in EveBox. For an HTTP service, make an unencrypted HTTP request and check for an HTTP event. Confirm a harmless test request triggers a known enabled detection rule before relying on alerts. EveBox is an event and alert GUI, not a full Suricata rule editor.
 
-When monitoring another container, such as `my-application`, start that container before the sensor. If the monitored container is recreated during an update, recreate the sensor from its saved template to reconnect it to the new network namespace. Preserve the sensor’s appdata. Automatic Docker dependency management and Docker socket access are not included.
+When monitoring another container, such as `container:my-application-I-want-to-monitor`, start that container before the sensor. If the monitored container is recreated during an update, recreate the sensor from its saved template to reconnect it to the new network namespace. Preserve the sensor’s appdata. Automatic Docker dependency management and Docker socket access are not included.
 
 ## Icons
 
@@ -42,8 +42,8 @@ Use **Edit > Advanced View > Icon URL** in Unraid to assign a direct HTTPS stati
 - Raw logs rotate at 256 MB per file with seven uncompressed rotated copies, checked every five minutes. This is not a hard disk quota. EveBox defaults to seven-day SQLite event retention, separate from raw logs.
 - Persistent configuration, rules and event paths are editable in the templates. Preserve them when containers are recreated.
 - This sensor is passive IDS. It does not block traffic, decrypt encrypted application traffic, configure email notifications or integrate with an external Elasticsearch cluster automatically.
-- `HTTP_PORTS` affects signatures that restrict inspection by port. Include the actual HTTP service ports used by `my-application`, even when HTTP is already being decoded.
-- Sharing `my-application`’s network namespace provides access to its network interfaces. It does not automatically expose traffic belonging to other containers or the entire VLAN.
+- `HTTP_PORTS` affects signatures that restrict inspection by port. Include the actual HTTP service ports used by `container:my-application-I-want-to-monitor`, even when HTTP is already being decoded.
+- Sharing `container:my-application-I-want-to-monitor`’s network namespace provides access to its network interfaces. It does not automatically expose traffic belonging to other containers or the entire VLAN.
 - The upstream default worker count is retained. Check resource use and packet-loss counters on the actual Unraid host and tune as needed.
 - The first build uses the upstream `jasonish/suricata:8.0` patch stream. Select a tested exact tag or digest for a reproducible release. Base image updates require rerunning the publish workflow, then updating or recreating the sensor in Unraid.
 
@@ -59,7 +59,7 @@ Community Applications generally restricts duplicate listings using an already-l
 
 Local checks cover source syntax, template structure, matching log mounts and invalid-setting rejection. The workflow adds real Docker build checks and a network-isolated image check for upstream initialization, embedded files, configuration parsing and idempotent configuration updates.
 
-These checks do not replace a live capture and alert test using traffic from `my-application` on Unraid.
+These checks do not replace a live capture and alert test using traffic from `container:my-application-I-want-to-monitor` on Unraid.
 
 ## References
 
