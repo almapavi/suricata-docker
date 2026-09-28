@@ -18,6 +18,14 @@ The examples below use a fictional container named `container:my-application-I-w
 6. Open EveBox’s Docker **Logs** for the generated admin password, then open **WebUI**. TLS and authentication remain enabled. The initial certificate is self-signed.
 7. Generate traffic to or from the monitored container and confirm corresponding events appear in EveBox. For an HTTP service, make an unencrypted HTTP request and check for an HTTP event. Confirm a harmless test request triggers a known enabled detection rule before relying on alerts. EveBox is an event and alert GUI, not a full Suricata rule editor.
 
+| Field                         | Value |
+| **Network Type**              | **Container** |
+| **Additional Networks**       | Leave empty/none |
+| **Container Network**         | Select the running container you want to monitor, such as `my-application-I-want-to-monitor` |
+| **Capture interface**         | The monitored container’s network interface, usually `eth0`, under **Show more settings** |
+
+Suricata shares the monitored container’s network interfaces and IP address. No separate IP address or additional network is required.
+
 When monitoring another container, such as `container:my-application-I-want-to-monitor`, start that container before the sensor. If the monitored container is recreated during an update, recreate the sensor from its saved template to reconnect it to the new network namespace. Preserve the sensor’s appdata. Automatic Docker dependency management and Docker socket access are not included.
 
 ## Icons
