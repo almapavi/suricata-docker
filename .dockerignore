@@ -1,0 +1,7 @@
+*
+!Dockerfile
+!scripts/
+!scripts/start-suricata.sh
+!scripts/update-rules.sh
+!scripts/validate-settings.py
+!scripts/configure-sensor.py

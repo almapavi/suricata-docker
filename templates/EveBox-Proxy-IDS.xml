@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Container version="2">
+  <Name>EveBox-Proxy-IDS</Name>
+  <Repository>jasonish/evebox:latest</Repository>
+  <Registry>https://hub.docker.com/r/jasonish/evebox/</Registry>
+  <Network>bridge</Network>
+  <MyIP />
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/almapavi/suricata-docker/issues</Support>
+  <Project>https://evebox.org/</Project>
+  <Overview>EveBox web interface for Suricata events and alerts. Reads the shared Suricata logs read-only; persistent SQLite database with default seven-day retention. HTTPS and login enabled; initial admin password is shown in container Logs. This is an event viewer, not a Suricata rule editor. Choose a free host TCP port if 5636 is occupied.</Overview>
+  <Category>Network: Tools:</Category>
+  <WebUI>https://[IP]:[PORT:5636]/</WebUI>
+  <Icon />
+  <TemplateURL>https://raw.githubusercontent.com/almapavi/suricata-docker/main/templates/EveBox-Proxy-IDS.xml</TemplateURL>
+  <ExtraParams>--entrypoint=evebox --restart=unless-stopped --log-opt=max-size=10m --log-opt=max-file=3</ExtraParams>
+  <PostArgs>server --sqlite --host 0.0.0.0 --data-directory /var/lib/evebox /var/log/suricata/eve.json</PostArgs>
+  <Config Name="HTTPS WebUI port" Target="5636" Default="5636" Mode="tcp" Description="On a custom VLAN use the container IP and port 5636. On bridge networking use the mapped host port." Type="Port" Display="always" Required="true" Mask="false">5636</Config>
+  <Config Name="EveBox data" Target="/var/lib/evebox" Default="/mnt/user/appdata/evebox-proxy" Mode="rw" Description="Persistent SQLite events, users and certificates." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/evebox-proxy</Config>
+  <Config Name="Suricata event logs" Target="/var/log/suricata" Default="/mnt/user/appdata/suricata-proxy/logs" Mode="ro" Description="Must match the sensor event-log host path." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/suricata-proxy/logs</Config>
+  <Config Name="Persistent login and TLS configuration" Target="EVEBOX_CONFIG_DIRECTORY" Default="/var/lib/evebox" Mode="" Description="Keeps generated credentials and certificates across container recreation." Type="Variable" Display="advanced" Required="true" Mask="false">/var/lib/evebox</Config>
+  <Config Name="Default search time range" Target="EVEBOX_DEFAULT_TIME_RANGE" Default="24h" Mode="" Description="Initial search range; 1h, 24h, 7d or all." Type="Variable" Display="always" Required="true" Mask="false">24h</Config>
+</Container>

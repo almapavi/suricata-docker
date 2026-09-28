@@ -1,0 +1,76 @@
+name: Build and publish Suricata image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - scripts/**
+      - tests/**
+      - .github/workflows/publish.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: suricata-image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/almapavi/suricata-unraid
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Check source
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/start-suricata.sh scripts/update-rules.sh tests/container-smoke.sh
+          python3 tests/check-source.py
+
+      - name: Build amd64 image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker build --pull --platform linux/amd64 \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --tag "$IMAGE:sha-$GITHUB_SHA" .
+
+      - name: Check built image without network access
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none \
+            -v "$PWD/tests:/tests:ro" \
+            "$IMAGE:sha-$GITHUB_SHA" /bin/bash /tests/container-smoke.sh
+
+      - name: Sign in to GitHub Container Registry
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+
+      - name: Publish checked image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker push "$IMAGE:sha-$GITHUB_SHA"
+          docker tag "$IMAGE:sha-$GITHUB_SHA" "$IMAGE:latest"
+          docker push "$IMAGE:latest"
+
+      - name: Sign out of registry
+        if: always()
+        run: docker logout ghcr.io

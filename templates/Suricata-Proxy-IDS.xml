@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Container version="2">
+  <Name>Suricata-Proxy-IDS</Name>
+  <Repository>ghcr.io/almapavi/suricata-unraid:latest</Repository>
+  <Registry>https://github.com/almapavi/suricata-docker/pkgs/container/suricata-unraid</Registry>
+  <Network>container:nginx-proxy-manager</Network>
+  <MyIP />
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/almapavi/suricata-docker/issues</Support>
+  <Project>https://suricata.io/</Project>
+  <Overview>Passive Suricata IDS with integrated configuration initialization, ET Open updates and log rotation. Select the exact reverse proxy container under Network Type and set its capture interface and your internal networks below. Start the proxy first. Recreate this sensor after the proxy is recreated. Use the companion EveBox template to view alerts. This image must first be published through the repository workflow; see README.</Overview>
+  <Category>Network: Tools:</Category>
+  <WebUI />
+  <Icon />
+  <TemplateURL>https://raw.githubusercontent.com/almapavi/suricata-docker/main/templates/Suricata-Proxy-IDS.xml</TemplateURL>
+  <ExtraParams>--cap-add=NET_ADMIN --cap-add=NET_RAW --cap-add=SYS_NICE --restart=unless-stopped --log-opt=max-size=10m --log-opt=max-file=3</ExtraParams>
+  <PostArgs />
+  <Config Name="Configuration" Target="/etc/suricata" Default="/mnt/user/appdata/suricata-proxy/config" Mode="rw" Description="Persistent configuration." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/suricata-proxy/config</Config>
+  <Config Name="Detection rules and cache" Target="/var/lib/suricata" Default="/mnt/user/appdata/suricata-proxy/data" Mode="rw" Description="Persistent detection rules and cache." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/suricata-proxy/data</Config>
+  <Config Name="Event logs" Target="/var/log/suricata" Default="/mnt/user/appdata/suricata-proxy/logs" Mode="rw" Description="Persistent event logs." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/suricata-proxy/logs</Config>
+  <Config Name="Capture interface" Target="CAPTURE_INTERFACE" Default="eth0" Mode="" Description="Interface inside the proxy network namespace." Type="Variable" Display="always" Required="true" Mask="false">eth0</Config>
+  <Config Name="Protected networks" Target="IDS_HOME_NET" Default="[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]" Mode="" Description="Suricata HOME_NET. Use a bracketed comma-separated list of CIDRs." Type="Variable" Display="always" Required="true" Mask="false">[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]</Config>
+  <Config Name="External networks" Target="IDS_EXTERNAL_NET" Default="any" Mode="" Description="Use any behind a reverse proxy so forwarded requests from its internal IP are inspected." Type="Variable" Display="always" Required="true" Mask="false">any</Config>
+  <Config Name="HTTP backend ports" Target="IDS_HTTP_PORTS" Default="[80,81,3000,3579,5000,8000,8008,8080,8081,8096,8181,8787,8989,7878,9000,32400]" Mode="" Description="Port group for rules that restrict inspection by HTTP_PORTS. Add your other HTTP backend ports." Type="Variable" Display="always" Required="true" Mask="false">[80,81,3000,3579,5000,8000,8008,8080,8081,8096,8181,8787,8989,7878,9000,32400]</Config>
+  <Config Name="Update rules at startup" Target="UPDATE_RULES_ON_START" Default="yes" Mode="" Description="yes or no. Missing rules are always downloaded." Type="Variable" Display="always" Required="true" Mask="false">yes</Config>
+  <Config Name="Daily rule updates" Target="DAILY_RULE_UPDATES" Default="yes" Mode="" Description="yes or no. Scheduled for 04:17 in the container timezone; see maintenance.log." Type="Variable" Display="always" Required="true" Mask="false">yes</Config>
+  <Config Name="Rotate each log at MB" Target="ROTATE_SIZE_MB" Default="256" Mode="" Description="Checked every five minutes, not a strict disk quota." Type="Variable" Display="always" Required="true" Mask="false">256</Config>
+  <Config Name="Rotated copies per log" Target="ROTATE_COUNT" Default="7" Mode="" Description="Number of uncompressed rotated copies per log." Type="Variable" Display="always" Required="true" Mask="false">7</Config>
+  <Config Name="Timezone" Target="TZ" Default="Etc/UTC" Mode="" Description="Timezone for scheduled rule updates." Type="Variable" Display="always" Required="true" Mask="false">Etc/UTC</Config>
+</Container>
