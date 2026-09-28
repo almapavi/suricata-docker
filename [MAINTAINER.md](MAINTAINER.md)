@@ -1,0 +1,8 @@
+First publication by the repository owner
+1. Keep the source files at the root of almapavi/suricata-docker, including .github/workflows/publish.yml and .dockerignore.
+2. Push the files to main. GitHub Actions builds, checks and publishes the image. You can also use Actions > Build and publish Suricata image > Run workflow.
+3. The workflow uses the repository’s automatic GITHUB_TOKEN, with contents: read and packages: write. No Docker Hub account, saved personal access token, or Unraid build command is required. Account or organization policies may still restrict Actions or package creation.
+4. Confirm all workflow steps pass, including Check built image without network access and Publish checked image.
+5. Open the newly created suricata-unraid package in GitHub. Check its visibility: a newly published container package defaults to private. For ordinary unauthenticated Unraid installation, set the package to Public through Package settings. A public source repository alone does not guarantee a public package.
+6. Verify the image can be pulled without signing in, then install the Unraid templates. A successful workflow alone does not verify live IDS capture or alert delivery.
+The GitHub Actions workflow builds and checks the Suricata image for amd64 (x86-64), then publishes it to GitHub Container Registry as ghcr.io/almapavi/suricata-unraid:latest. It also publishes a sha-<commit> tag identifying the source revision. Publication occurs only after the checks pass. The workflow runs when relevant source files change on main or when manually triggered. Community Applications submission is a separate process.
