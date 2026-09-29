@@ -6,32 +6,15 @@ This source builds `ghcr.io/almapavi/suricata-unraid:latest`: a Suricata image w
 
 Replace `my-application-I-want-to-monitor` with the exact name of the running container you want to monitor. The existing template names, **Suricata-Proxy-IDS** and **EveBox-Proxy-IDS**, also support monitoring other containers.
 
-**Installation readiness:** use the registry-backed template only after the publish workflow succeeds and the container package is public. A passing build does not replace a live capture and alert test on Unraid.
-
-## Install on Unraid after publication
-
 ### Download and load the templates
 
 1. On the repository's **Code** page, select **Code > Download ZIP** and extract the archive. Open its `templates` folder. Alternatively, open each XML file on GitHub and use **Download raw file**.
 2. Copy **Suricata-Proxy-IDS.xml** and **EveBox-Proxy-IDS.xml** to `/boot/config/plugins/dockerMan/templates-user/` using a file manager or SFTP. Replace older copies with the same filenames.
 3. Go to **Docker > Add Container** and select **Suricata-Proxy-IDS**. The name, repository, overview, appdata paths and capture settings should populate automatically.
 
-**Download the file contents, not the GitHub webpage.** Using a browser's **Save page as** on the GitHub file-view page can save HTML with an `.xml` filename. A valid template begins with `<?xml` and contains `<Container version="2">`; a file beginning with `<!DOCTYPE html>` is a webpage.
-
-If **Name**, **Repository** or the configuration fields are blank, leave the form unapplied. Replace the downloaded files, leave the form and select the template again. If there are duplicate entries, check for an older saved `my-Suricata-Proxy-IDS.xml` before selecting the template.
-
 ### Configure Suricata
 
 Start the container you want to monitor before configuring the sensor. Use these settings in the Unraid form:
-
-| Field | Value |
-|---|---|
-| **Repository** | `ghcr.io/almapavi/suricata-unraid:latest` |
-| **Network Type** | **Container** |
-| **Additional Networks** | **None** |
-| **Container Network** | Select the running container you want to monitor: `my-application-I-want-to-monitor` |
-| **Capture interface** | The interface inside the monitored container, usually `eth0` |
-| **Privileged** | **Off**; the template supplies the required capabilities |
 
 Unraid shows **Network Type** and **Container Network** as separate fields. In the XML, this selection is represented as `container:my-application-I-want-to-monitor`. The `container:` prefix is network syntax, not part of the container's name. Replace the template's default container selection with your own.
 
